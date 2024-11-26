@@ -1,0 +1,21 @@
+{
+    "execMap": {
+        "ts": "node --require ts-node/register"
+    },
+    "verbose": true,
+    "ignore": [
+        "node_modules/**/*",
+        "babel.config.json",
+        ".git",
+        ".vscode",
+        ".gitignore",
+        "*.env"
+    ],
+    "watch": [
+        "config/",
+        "constants/",
+        "credentials/",
+        "src/"
+    ],
+    "ext": "js,json,ts"
+}
