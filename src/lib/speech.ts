@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync } from 'fs'
 import { SpeechConfig, AudioConfig, SpeechSynthesizer, ResultReason, PushAudioOutputStreamCallback } from 'microsoft-cognitiveservices-speech-sdk'
 import path from 'path'
 import { v4 } from 'uuid'
@@ -15,7 +16,9 @@ const root = process.env.IS_DEBUG ? path.join(__dirname, '..', '..') : __dirname
 export class Speech {
   static async toAudio(text: string): Promise<string> {
     const id = v4()
-    const file = path.join(root, 'audio', `${id}.wav`)
+    const folder = path.join(root, 'audio')
+    if (existsSync(folder)) mkdirSync(folder, { recursive: true })
+    const file = path.join(folder, `${id}.wav`)
     const speechConfig = SpeechConfig.fromSubscription(SPEECH_KEY, SPEECH_REGION)
     speechConfig.speechSynthesisVoiceName = Voices.MALE
     var synthesizer: SpeechSynthesizer | null = new SpeechSynthesizer(speechConfig, AudioConfig.fromAudioFileOutput(file))
