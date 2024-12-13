@@ -203,3 +203,54 @@ onSnapshot(collection(firestore, 'exercise'), async snapshot => {
   }
   exercises = snapshot.docs
 })
+
+let answers: any[] | null = null
+onSnapshot(collection(firestore, 'answers'), async snapshot => {
+  if (answers === null) {
+    answers = snapshot.docs.map(doc => ({ ...doc.data(), ref: doc.ref }))
+    await Promise.allSettled(
+      answers.map(async current => {
+        if (!current.text) {
+          try {
+            const text = await Speech.toText(current.audio)
+            await setDoc(current.ref, { text, error: '' }, { merge: true })
+          } catch (error: any) {
+            await setDoc(current.ref, { error: error.message, text: '' }, { merge: true })
+          }
+        }
+      })
+    )
+    return
+  }
+  const changes = snapshot.docChanges({})
+  for (let change of changes) {
+    const current: any = { ...change.doc.data(), ref: change.doc.ref }
+    switch (change.type) {
+      case 'added':
+        try {
+          const text = await Speech.toText(current.audio)
+          await setDoc(current.ref, { text, error: '' }, { merge: true })
+        } catch (error: any) {
+          await setDoc(current.ref, { error: error.message, text: '' }, { merge: true })
+        }
+        answers.push(current)
+        break
+      case 'modified':
+        const prev = answers.at(change.oldIndex)
+        if (!prev) break
+        if (prev.audio != current.audio) {
+          try {
+            const text = await Speech.toText(current.audio)
+            await setDoc(current.ref, { text, error: '' }, { merge: true })
+          } catch (error: any) {
+            await setDoc(current.ref, { error: error.message, text: '' }, { merge: true })
+          }
+        }
+        break
+      case 'removed':
+        // await remove(`audio/answers/texts/${id}.mp3`)
+        break
+    }
+  }
+  exercises = snapshot.docs
+})
