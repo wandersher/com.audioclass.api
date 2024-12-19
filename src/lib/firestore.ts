@@ -74,7 +74,7 @@ onSnapshot(collection(firestore, 'courses'), async snapshot => {
         const id = doc.id
         const current = doc.data()
         if (!current.audio) {
-          const filepath = await Speech.toAudio(current.name)
+          const filepath = await Speech.toAudio(`${current.name}, проведіть вгору для перегляду тем або вниз для повернення`)
           const url = await upload(`audio/courses/names/${id}.mp3`, filepath)
           await setDoc(doc.ref, { audio: url }, { merge: true })
         }
@@ -88,7 +88,7 @@ onSnapshot(collection(firestore, 'courses'), async snapshot => {
     const current = change.doc.data()
     switch (change.type) {
       case 'added':
-        const filepath = await Speech.toAudio(current.name)
+        const filepath = await Speech.toAudio(`${current.name}, проведіть вгору для перегляду тем або вниз для повернення`)
         const url = await upload(`audio/courses/names/${id}.mp3`, filepath)
         await setDoc(change.doc.ref, { audio: url }, { merge: true })
         break
@@ -96,7 +96,7 @@ onSnapshot(collection(firestore, 'courses'), async snapshot => {
         const prev = courses.at(change.oldIndex)?.data()
         if (!prev) break
         if (prev.name != current.name) {
-          const filepath = await Speech.toAudio(current.name)
+          const filepath = await Speech.toAudio(`${current.name}, проведіть вгору для перегляду тем або вниз для повернення`)
           const url = await upload(`audio/courses/names/${id}.mp3`, filepath)
           courses[change.oldIndex] = change.doc
           await setDoc(change.doc.ref, { audio: url }, { merge: true })
@@ -121,7 +121,11 @@ onSnapshot(collection(firestore, 'topics'), async snapshot => {
         const id = doc.id
         const current = doc.data()
         payload = {}
-        if (!current.audio_name) payload.audio_name = await upload(`audio/topics/names/${id}.mp3`, await Speech.toAudio(current.name))
+        if (!current.audio_name)
+          payload.audio_name = await upload(
+            `audio/topics/names/${id}.mp3`,
+            await Speech.toAudio(`${current.name}, проведіть вгору для прослуховування теми або вниз для повернення`)
+          )
         if (!current.audio_text) payload.audio_text = await upload(`audio/topics/texts/${id}.mp3`, await Speech.toAudio(current.text))
         if (Object.values(payload).length) await setDoc(doc.ref, payload, { merge: true })
       })
@@ -136,7 +140,10 @@ onSnapshot(collection(firestore, 'topics'), async snapshot => {
     switch (change.type) {
       case 'added':
         payload = {
-          audio_name: await upload(`audio/topics/names/${id}.mp3`, await Speech.toAudio(current.name)),
+          audio_name: await upload(
+            `audio/topics/names/${id}.mp3`,
+            await Speech.toAudio(`${current.name}, проведіть вгору для прослуховування теми або вниз для повернення`)
+          ),
           audio_text: await upload(`audio/topics/texts/${id}.mp3`, await Speech.toAudio(current.text))
         }
         await setDoc(change.doc.ref, payload, { merge: true })
@@ -145,7 +152,11 @@ onSnapshot(collection(firestore, 'topics'), async snapshot => {
         const prev = topics.at(change.oldIndex)?.data()
         if (!prev) break
         payload = {}
-        if (prev.name != current.name) payload.audio_name = await upload(`audio/topics/names/${id}.mp3`, await Speech.toAudio(current.name))
+        if (prev.name != current.name)
+          payload.audio_name = await upload(
+            `audio/topics/names/${id}.mp3`,
+            await Speech.toAudio(`${current.name}, проведіть вгору для прослуховування теми або вниз для повернення`)
+          )
         if (prev.text != current.text) payload.audio_text = await upload(`audio/topics/texts/${id}.mp3`, await Speech.toAudio(current.text))
         topics[change.oldIndex] = change.doc
         if (Object.keys(payload).length) await setDoc(change.doc.ref, payload, { merge: true })
@@ -168,7 +179,7 @@ onSnapshot(collection(firestore, 'exercise'), async snapshot => {
         const id = doc.id
         const current = doc.data()
         if (!current.audio) {
-          const filepath = await Speech.toAudio(current.text)
+          const filepath = await Speech.toAudio(`${current.text}, проведіть вгору для запису відповіді або вниз для повернення`)
           const url = await upload(`audio/exercises/texts/${id}.mp3`, filepath)
           await setDoc(doc.ref, { audio: url }, { merge: true })
         }
@@ -182,7 +193,7 @@ onSnapshot(collection(firestore, 'exercise'), async snapshot => {
     const current = change.doc.data()
     switch (change.type) {
       case 'added':
-        const filepath = await Speech.toAudio(current.text)
+        const filepath = await Speech.toAudio(`${current.text}, проведіть вгору для запису відповіді або вниз для повернення`)
         const url = await upload(`audio/exercises/texts/${id}.mp3`, filepath)
         await setDoc(change.doc.ref, { audio: url }, { merge: true })
         break
@@ -190,7 +201,7 @@ onSnapshot(collection(firestore, 'exercise'), async snapshot => {
         const prev = exercises.at(change.oldIndex)?.data()
         if (!prev) break
         if (prev.name != current.name) {
-          const filepath = await Speech.toAudio(current.text)
+          const filepath = await Speech.toAudio(`${current.text}, проведіть вгору для запису відповіді або вниз для повернення`)
           const url = await upload(`audio/exercises/texts/${id}.mp3`, filepath)
           exercises[change.oldIndex] = change.doc
           await setDoc(change.doc.ref, { audio: url }, { merge: true })
